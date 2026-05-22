@@ -1,0 +1,25 @@
+{
+  "unattached_ebs_volumes": [
+    {
+      "volume_id": "vol-00000000000000001",
+      "size_gb": 8,
+      "potential_savings": 0.8
+    }
+  ],
+  "old_stopped_ec2_instances": [
+    {
+      "instance_id": "i-00000000000000001",
+      "stopped_days": 45,
+      "potential_savings": 0.0
+    }
+  ],
+  "unused_eips": [],
+  "missing_tags": [
+    {
+      "resource_id": "vpc-00000000000000001",
+      "resource_type": "vpc",
+      "missing_tags": ["Owner"]
+    }
+  ],
+  "total_potential_savings_monthly": 0.8
+}

@@ -1,0 +1,82 @@
+name: Cost Janitor
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  run-janitor:
+    runs-on: ubuntu-latest
+    
+    services:
+      localstack:
+        image: localstack/localstack:4.4.0
+        ports:
+          - "4566:4566"
+          - "4510-4559:4510-4559"
+        env:
+          SERVICES: ec2,s3,iam,sts
+          AWS_DEFAULT_REGION: us-east-1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          pip install -r janitor/requirements.txt
+          pip install terraform-local awscli-local
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Wait for LocalStack
+        run: |
+          until curl -s http://localhost:4566/_localstack/health | grep -q '"ec2": "available"'; do
+            echo "Waiting for LocalStack EC2..."
+            sleep 2
+          done
+
+      - name: Terraform Init and Apply
+        working-directory: ./terraform
+        run: |
+          tflocal init
+          tflocal apply -auto-approve
+
+      - name: Run Janitor (Dry Run)
+        working-directory: ./janitor
+        run: |
+          python janitor.py --dry-run
+        continue-on-error: true # Let it fail so we can still upload artifacts
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: janitor-reports
+          path: |
+            janitor/report.json
+            janitor/summary.md
+
+      - name: Comment PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('janitor/summary.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });

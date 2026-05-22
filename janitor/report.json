@@ -1,0 +1,39 @@
+{
+  "scan_timestamp": "2026-05-22T12:00:00+00:00",
+  "account_id": "123456789012",
+  "region": "us-east-1",
+  "summary": "# AWS Cost Janitor Report\n\n## Summary\n- **Unattached EBS Volumes**: 1\n- **Old Stopped EC2 Instances**: 0\n- **Unused Elastic IPs**: 1\n- **Resources Missing Required Tags**: 3\n\n### Total Potential Monthly Savings: $4.40\n\n## Details\n\n### Unattached EBS Volumes\n- `vol-a3a85bff444145a5e` (10 GB) - Savings: $0.80\n\n### Old Stopped EC2 Instances\n\n### Unused Elastic IPs\n- `3.3.3.3` - Savings: $3.60\n\n### Resources Missing Required Tags\n- `vol-01b9c0c2fd4855721` (volume): Missing [\"Project\", \"Environment\", \"Owner\", \"ManagedBy\"]\n- `vol-0a4b0de70cb8bde11` (volume): Missing [\"Project\", \"Environment\", \"Owner\", \"ManagedBy\"]\n- `i-28fbab364d24a3c3e` (instance): Missing [\"Project\", \"Owner\", \"ManagedBy\"]",
+  "findings": [
+    {
+      "resource_id": "vol-a3a85bff444145a5e",
+      "resource_type": "ebs_volume",
+      "details": { "size_gb": 10 },
+      "estimated_monthly_savings": 0.8
+    },
+    {
+      "resource_id": "3.3.3.3",
+      "resource_type": "elastic_ip",
+      "details": { "public_ip": "3.3.3.3", "allocation_id": "eipalloc-0abcd1234" },
+      "estimated_monthly_savings": 3.6
+    },
+    {
+      "resource_id": "vol-01b9c0c2fd4855721",
+      "resource_type": "volume",
+      "details": { "missing_tags": ["Project", "Environment", "Owner", "ManagedBy"] },
+      "estimated_monthly_savings": 0.0
+    },
+    {
+      "resource_id": "vol-0a4b0de70cb8bde11",
+      "resource_type": "volume",
+      "details": { "missing_tags": ["Project", "Environment", "Owner", "ManagedBy"] },
+      "estimated_monthly_savings": 0.0
+    },
+    {
+      "resource_id": "i-28fbab364d24a3c3e",
+      "resource_type": "ec2_instance",
+      "details": { "missing_tags": ["Project", "Owner", "ManagedBy"] },
+      "estimated_monthly_savings": 0.0
+    }
+  ],
+  "total_potential_savings_monthly": 4.4
+}
